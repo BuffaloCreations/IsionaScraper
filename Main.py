@@ -40,7 +40,7 @@ try:
     # Buscar término
     search_box = driver.find_element(By.ID, "searchboxinput")
     search_box.clear()
-    search_box.send_keys("Gimnasio")
+    search_box.send_keys("Contabilidad")
 
     # Hacer clic en el botón de búsqueda
     search_button = driver.find_element(By.XPATH, '//button[@aria-label="Buscar"]')
@@ -113,7 +113,7 @@ try:
             print(f"No se pudo procesar el lugar {i + 1}: {str(e)}")
 
     # ========== GUARDAR EN CSV ==========
-    with open('resultados_estudio_juridico.csv', mode='w', newline='', encoding='utf-8') as file:
+    with open('resultados_psicologia.csv', mode='w', newline='', encoding='utf-8') as file:
         writer = csv.DictWriter(file, fieldnames=["Nombre", "Teléfono"])
         writer.writeheader()
         writer.writerows(extracted_data)
