@@ -9,14 +9,18 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import time
 import csv
 
+# Entrada del usuario
+search_term = input("Ingrese el término de búsqueda para Google Maps: ")
+output_filename = input("Ingrese el nombre del archivo CSV de salida: ") + ".csv"
+
 # Configuración del navegador
 chrome_options = Options()
 chrome_options.add_argument("--start-maximized")
-# chrome_options.add_argument('--headless')  # Opcional
+# chrome_options.add_argument('--headless')  # Activar si se desea ocultar la ventana
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
-# ========= Funciones de extracción =========
+# Funciones de extracción
 def extract_name():
     try:
         return WebDriverWait(driver, 10).until(
@@ -47,7 +51,7 @@ try:
     # Buscar término
     search_box = driver.find_element(By.ID, "searchboxinput")
     search_box.clear()
-    search_box.send_keys("Odontología")  # Puedes cambiar esto
+    search_box.send_keys(search_term)
     search_button = driver.find_element(By.XPATH, '//button[@aria-label="Buscar"]')
     search_button.click()
     time.sleep(5)
@@ -59,7 +63,7 @@ try:
 
     print("Cargando todos los resultados...")
 
-    # ========== Scroll hacia abajo ==========
+    # Scroll hacia abajo para cargar más resultados
     previous_count = 0
     MAX_RETRIES = 10
     retry = 0
@@ -76,13 +80,13 @@ try:
 
     print(f"Total de resultados encontrados: {previous_count}")
 
-    # ========== Volver al inicio ==========
+    # Volver al inicio del panel
     driver.execute_script('arguments[0].scrollTop = 0', results_panel)
     time.sleep(2)
 
     extracted_data = []
 
-    # ========== Procesar cada resultado ==========
+    # Procesar cada resultado individualmente
     for i in range(previous_count):
         try:
             links = WebDriverWait(driver, 10).until(
@@ -111,13 +115,15 @@ try:
             })
 
         except Exception as e:
-            print(f" No se pudo procesar el lugar {i + 1}: {str(e)}")
+            print(f"No se pudo procesar el lugar {i + 1}: {str(e)}")
 
-    # ========== Guardar CSV ==========
-    with open('resultados_odontologia.csv', mode='w', newline='', encoding='utf-8') as file:
+    # Guardar los resultados en CSV
+    with open(output_filename, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.DictWriter(file, fieldnames=["Nombre", "Teléfono", "Sitio Web"])
         writer.writeheader()
         writer.writerows(extracted_data)
+
+    print(f"\nArchivo guardado correctamente como: {output_filename}")
 
 finally:
     driver.quit()
